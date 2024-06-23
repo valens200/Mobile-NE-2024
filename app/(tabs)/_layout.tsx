@@ -2,6 +2,10 @@ import { Tabs } from "expo-router";
 import { View } from "react-native";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import MaterialCommunityIcons from "@expo/vector-icons/build/MaterialCommunityIcons";
+import { Colors } from "@/constants/Colors";
+import { AntDesign } from "@expo/vector-icons";
+import { FontAwesome6 } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
 const TabBarIcon = ({
   name,
@@ -16,11 +20,9 @@ const TabBarIcon = ({
 }) => {
   return (
     <View>
-      <MaterialCommunityIcons
-        name="microsoft-xbox-controller-menu"
-        size={30}
-        color={color}
-      />
+      {icon == "home" && <AntDesign name="home" size={30} color={color} />}
+      {icon == "add" && <FontAwesome6 name="add" size={30} color={color} />}
+      {icon == "profile" && <Ionicons name="person-add-sharp" size={30} color={color} />}
     </View>
   );
 };
@@ -31,12 +33,13 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: "#F7941D",
-        tabBarInactiveTintColor: "black",
+        tabBarInactiveTintColor: "white",
         headerShown: false,
         tabBarStyle: {
           borderTopWidth: 1,
           height: 65,
-          backgroundColor: "#ffffff",
+          padding:7,
+          backgroundColor: Colors.dark.black2,
         },
       }}
     >
@@ -61,7 +64,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               color={color}
-              icon={"main"}
+              icon={"add"}
               isFocused={focused}
               name={focused ? "add" : "add-outline"}
             />
@@ -76,7 +79,7 @@ export default function TabLayout() {
             <TabBarIcon
               name={focused ? "person" : "person-outline"}
               color={color}
-              icon={"main"}
+              icon={"profile"}
               isFocused={focused}
             />
           ),

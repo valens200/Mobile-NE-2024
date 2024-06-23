@@ -1,12 +1,13 @@
 export interface Product {
     id: string;
-    name: string;
+    productName: string;
     description: string;
-    price: number;
+    cost: number;
 }
 
 export interface User {
     id: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
 }

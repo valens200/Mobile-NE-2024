@@ -6,7 +6,7 @@ export const validateEmail = (email: string) => {
 }
 
 export const validatePassword = (password: string) => {
-    return password.length >= 4;
+    return password.length >= 8;
 }
 
 export const validateProduct = (product: Omit<Product, "id">) => {

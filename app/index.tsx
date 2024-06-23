@@ -1,5 +1,6 @@
 import CustomButton from "@/components/CustomButton";
 import useAuth from "@/hooks/useAuth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Image, ScrollView, Text, View } from "react-native";
@@ -8,6 +9,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const Onboarding = () => {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const getToken = async () => {
+    const token = await AsyncStorage.getItem("token");
+  };
   return (
     <SafeAreaView className="bg-white">
       <ScrollView
@@ -19,7 +23,7 @@ const Onboarding = () => {
           <Image
             source={require("../assets/images/welcome.png")}
             resizeMode="contain"
-            className="w-[240px] h-[240px]"
+            className="w-[340px] h-[440px]"
           />
           <Text className="text-2xl font-bold font-rubik">
             Welcome to our app
@@ -27,7 +31,7 @@ const Onboarding = () => {
           <Text className="text-center text-lg text-gray-500 py-4 ">
             Already logged in as{" "}
             <Text className="text-black font-semibold text-cyan-600">
-              {user?.name}
+              {user?.firstName}
             </Text>
           </Text>
           {user ? (
@@ -46,16 +50,15 @@ const Onboarding = () => {
               />
             </View>
           ) : (
-            <View className="w-full mt-6">
+            <View className="w-full h-[70px] mt-6">
               <CustomButton
-                title="Login"
-                handlePress={() => router.push("/home")}
-              />
-              <CustomButton
-                title="Create Account"
-                handlePress={() => router.push("/signup")}
-                variant="outline"
-                containerStyles="mt-5"
+                title="Continue"
+                containerStyles={""}
+                handlePress={async () =>
+                  (await getToken()) == null
+                    ? router.push("Home")
+                    : router.push("/login")
+                }
               />
             </View>
           )}

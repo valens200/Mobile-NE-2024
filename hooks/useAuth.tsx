@@ -30,42 +30,44 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const pathname = usePathname();
 
-  //   useEffect(() => {
-  //     if (user) {
-  //       setInitialLoading(false);
-  //       return;
-  //     }
-  //     const fetchUser = async () => {
-  //       try {
-  //         const { data } = await axios.get("/users/me");
-  //         setUser(data.user);
-  //       } catch (error) {
-  //         setUser(null);
-  //         if (!["/", "/login", "/signup"].includes(pathname)) {
-  //           router.push("/login");
-  //         }
-  //       } finally {
-  //         setInitialLoading(false);
-  //       }
-  //     };
-  //     fetchUser();
-  //   }, [pathname, user]);
+  useEffect(() => {
+    if (user) {
+      setInitialLoading(false);
+      return;
+    }
+    const fetchUser = async () => {
+      try {
+        const { data } = await axios.get("/users/me");
+        setUser(data.user);
+      } catch (error) {
+        setUser(null);
+        if (!["/", "/login", "/signup"].includes(pathname)) {
+          router.push("/login");
+        }
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    fetchUser();
+  }, [pathname, user]);
 
   const login = async (email: string, password: string) => {
     setLoggingIn(true);
-    try {
-      //   const { data } = await axios.post("/users/login", {
-      //     email,
-      //     password,
-      //   });
-      //   setUser(data.user);
-      //   AsyncStorage.setItem("token", data.token);
-      //   toast.show("Logged in successfully", {
-      //     type: "success",
-      //   });
+    try { 
+      const { data } = await axios.post("/auth/login", {
+        email,
+        password,
+      });
+
+      setUser(data.data.user);
+
+      AsyncStorage.setItem("token", data.data.token);
+      AsyncStorage.setItem("loggedInUser", JSON.stringify(data.data.user));
+      toast.show("Logged in successfully", {
+        type: "success",
+      });
       router.push("/home");
     } catch (error: any) {
-      console.log(error);
       if (error.response.status === 400) {
         toast.show("Invalid email or password", {
           type: "danger",
