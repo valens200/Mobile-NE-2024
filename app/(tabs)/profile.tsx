@@ -30,7 +30,6 @@ export default function Profile() {
     });
   };
   useEffect(() => {
-    console.log("Hello world", NetworkInfo);
     getIp();
   }, []);
 
@@ -59,7 +58,7 @@ export default function Profile() {
             </TouchableOpacity>
           </View>
 
-          <View>
+          <View className="h-[19%]">
             <CustomButton
               title="Logout"
               isLoading={loggingOut}

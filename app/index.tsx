@@ -12,6 +12,9 @@ const Onboarding = () => {
   const getToken = async () => {
     const token = await AsyncStorage.getItem("token");
   };
+  if (user) {
+    console.log(user.lastName);
+  }
   return (
     <SafeAreaView className="bg-white">
       <ScrollView
@@ -29,13 +32,13 @@ const Onboarding = () => {
             Welcome to our app
           </Text>
           <Text className="text-center text-lg text-gray-500 py-4 ">
-            Already logged in as{" "}
+            Already logged in as { " "}
             <Text className="text-black font-semibold text-cyan-600">
               {user?.firstName}
             </Text>
           </Text>
           {user ? (
-            <View className="w-full mt-6">
+            <View className="w-full h-[10%] mt-6">
               <CustomButton
                 title="Go to Home"
                 handlePress={() => router.push("/home")}
@@ -55,9 +58,9 @@ const Onboarding = () => {
                 title="Continue"
                 containerStyles={""}
                 handlePress={async () =>
-                  (await getToken()) == null
-                    ? router.push("Home")
-                    : router.push("/login")
+                  // (await getToken()) == null
+                     router.push("/home")
+                    // : router.push("/login")
                 }
               />
             </View>

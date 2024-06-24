@@ -10,4 +10,12 @@ export interface User {
     firstName: string;
     lastName: string;
     email: string;
+    status:string;
+    roles: any[]
+}
+export interface Post{
+    userId: number;
+    id: number;
+    title: string;
+    body: string;
 }

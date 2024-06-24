@@ -1,43 +1,73 @@
 import CustomButton from "@/components/CustomButton";
 import { backgoundImage, productImage } from "@/constants";
 import useAuth from "@/hooks/useAuth";
-import useProducts from "@/hooks/useProducts";
-import { Product } from "@/types";
+import useProducts from "@/hooks/usePosts";
+import { Post, Product } from "@/types";
 import { da, faker } from "@faker-js/faker";
 import { useRouter } from "expo-router";
 import {
   FlatList,
   Image,
   ImageBackground,
-  StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ActivityIndicator, MD2Colors, Searchbar } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Button,
+  MD2Colors,
+  Modal,
+  Portal,
+  Searchbar,
+  Switch,
+  TextInput,
+} from "react-native-paper";
 import { useEffect, useState } from "react";
-
+import CustomButton2 from "@/components/CustomButton2";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AntDesign } from "@expo/vector-icons";
+import axios from "@/lib/axios.config";
+import { useToast } from "react-native-toast-notifications";
 export default function HomeScreen() {
   const { user } = useAuth();
   const { products } = useProducts();
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [refreshing, setRefleshing] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const toast = useToast();
 
   setTimeout(() => {
     setLoading(false);
-  }, 3000);
+  }, 1000);
   const router = useRouter();
 
   const search = () => {
-    return products?.filter((item) => {
-      const values = Object.values(item);
-      return values.some((value) => {
-        return JSON.stringify(value)
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase());
+    if (products) {
+      return products?.filter((item) => {
+        const values = Object.values(item);
+        return values.some((value) => {
+          return JSON.stringify(value)
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase());
+        });
       });
-    });
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    try {
+      // alert('Are you sure you want to delete this post?')
+      const res = await axios.delete(`/posts/${id}`);
+      toast.show("The post was deleted successfully", {
+        type: "danger",
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -50,7 +80,7 @@ export default function HomeScreen() {
         />
 
         <Text className="text-xl text-gray-800 font-rubiksemibold">
-          Welcome, {user?.firstName}
+          Welcome Again, {user?.firstName}
         </Text>
         <Text className="text-gray-500 text-base">
           Here are the products you have created
@@ -84,19 +114,21 @@ export default function HomeScreen() {
                   </Text>
                 </View>
               )}
-              keyExtractor={(item) => item.id}
+              keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <View className="h-[200px] w-[380px]  rounded-lg mb-3 border border-gray-200 shadow-sm">
+                <View className="h-[230px] w-[380px]  rounded-lg mb-3 border border-gray-200 shadow-sm">
                   <ImageBackground
                     className="h-full flex items-center justify-center"
                     src={backgoundImage}
                   >
                     <View className="w-[90%] mx-auto">
                       <Text className="text-2xl text-white font-bold ">
-                        {item.productName}
+                        {item.title}
                       </Text>
                       <Text className="text-sm text-white font-bold ">
-                        {item.description}
+                        {item.body.length > 80
+                          ? item.body.slice(0, 80) + "..."
+                          : item.body}
                       </Text>
                     </View>
                   </ImageBackground>
@@ -105,6 +137,8 @@ export default function HomeScreen() {
             />
           </View>
           <FlatList
+            refreshing={refreshing}
+            onRefresh={() => setRefleshing(true)}
             className="w-full"
             data={search()}
             ListEmptyComponent={() => (
@@ -119,30 +153,39 @@ export default function HomeScreen() {
                 </Text>
               </View>
             )}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <View className="h-[300px] w-[380px] p-2 mt-4 rounded-lg mb-3 border border-gray-200 shadow-sm">
-                <ImageBackground src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcPBxvGOv3-CkNRq0LUaViCbe6p6SlqV8VAw&s">
-                  <View className="h-[100px] p-4 w-full">
-                    <Text className="text-lg text-white font-semibold">
-                      {item.name}
-                    </Text>
-                  </View>
-                </ImageBackground>
+                <View className="h-[50px]  w-full">
+                  <Text className="text-lg text-black font-semibold">
+                    {item.title}
+                  </Text>
+                </View>
                 <View className="mt-4 p-3">
                   <Text className="text-base text-gray-500 mb-3">
-                    {item.description.length > 80
-                      ? item.description.slice(0, 80) + "..."
-                      : item.description}
+                    {item.body.length > 80
+                      ? item.body.slice(0, 80) + "..."
+                      : item.body}
                   </Text>
-                  <Text className="text-base text-cyan-800">${item.cost}</Text>
-                  {/* <CustomButton
+                  <View className="flex flex-row items-enter justify-between">
+                    <Text className="text-base text-cyan-800">
+                      Comments : {"500"}
+                    </Text>
+                    <AntDesign
+                      onPress={() => handleDelete(item.id)}
+                      name="delete"
+                      size={24}
+                      color="red"
+                    />
+                  </View>
+
+                  <CustomButton2
                     handlePress={() => router.push(`/product/${item.id}`)}
                     title="View"
                     containerStyles="mt-3"
                     variant="outline"
                     titleStyles="text-base"
-                  /> */}
+                  />
                 </View>
               </View>
             )}

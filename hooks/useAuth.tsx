@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { usePathname, useRouter } from "expo-router";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useToast } from "react-native-toast-notifications";
-import axios from "../lib/axios.config";
+import axios, { authApi } from "../lib/axios.config";
 import { User } from "../types";
 
 interface AuthContextType {
@@ -30,30 +30,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const pathname = usePathname();
 
-  useEffect(() => {
-    if (user) {
-      setInitialLoading(false);
-      return;
-    }
-    const fetchUser = async () => {
-      try {
-        const { data } = await axios.get("/users/me");
-        setUser(data.user);
-      } catch (error) {
-        setUser(null);
-        if (!["/", "/login", "/signup"].includes(pathname)) {
-          router.push("/login");
-        }
-      } finally {
-        setInitialLoading(false);
-      }
-    };
-    fetchUser();
-  }, [pathname, user]);
+  // useEffect(() => {
+  //   if (user) {
+  //     setInitialLoading(false);
+  //     return;
+  //   }
+  //   const fetchUser = async () => {
+  //     try {
+  //       const user: any = await AsyncStorage.getItem("loggedInUser");
+  //       if (!user) throw new Error("No loggedin user");
+  //       setUser(JSON.parse(user));
+  //       // const { data } = await authApi.get("/users/me");
+  //       // setUser(data.user);
+  //     } catch (error) {
+  //       setUser(null);
+  //       if (!["/", "/login", "/signup"].includes(pathname)) {
+  //         router.push("/login");
+  //       }
+  //     } finally {
+  //       setInitialLoading(false);
+  //     }
+  //   };
+  //   fetchUser();
+  // }, [pathname, user]);
 
   const login = async (email: string, password: string) => {
     setLoggingIn(true);
-    try { 
+    try {
       const { data } = await axios.post("/auth/login", {
         email,
         password,
@@ -108,10 +111,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setUser(null);
       AsyncStorage.removeItem("token");
+      AsyncStorage.removeItem("loggedInUser")
       toast.show("Logged out successfully", {
         type: "success",
       });
-      router.push("/login");
+      router.replace("/login");
     } catch (error) {
       toast.show("An error occurred", {
         type: "error",

@@ -1,6 +1,6 @@
 import CustomButton from "@/components/CustomButton";
 import CustomInput from "@/components/CustomInput";
-import useProducts from "@/hooks/useProducts";
+import useProducts from "@/hooks/usePosts";
 import React, { useState } from "react";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -12,13 +12,14 @@ const AddProduct = () => {
   const { createProduct, creatingProduct } = useProducts();
 
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    price: 0,
+    id:0,
+    userId:0,
+    title:"",
+    body:"",
   });
 
   const handleSubmit = () => {
-    if (!formData.name || !formData.description || !formData.price) {
+    if (!formData.title || !formData.body) {
       return toast.show("Please fill in all fields", {
         type: "danger",
       });
@@ -34,11 +35,6 @@ const AddProduct = () => {
         type: "danger",
       });
     }
-    if (!validationResults.price.valid) {
-      return toast.show(validationResults.price.message, {
-        type: "danger",
-      });
-    }
     createProduct(formData, true);
   };
 
@@ -46,7 +42,7 @@ const AddProduct = () => {
     <SafeAreaView className="p-3 px-5 h-full justify-center">
       <View>
         <Text className="text-xl font-rubiksemibold text-gray-800">
-          Add Product
+          Add new Post
         </Text>
         <Text className="text-gray-600 text-base">
           Fill in the form below to add a new product
@@ -54,21 +50,21 @@ const AddProduct = () => {
       </View>
       <View className="mb-5 mt-8">
         <CustomInput
-          value={formData.name}
-          label="Product Name"
+          value={formData.title}
+          label="Post Title"
           placeholder="Enter product name"
-          onChangeText={(val) => setFormData({ ...formData, name: val })}
+          onChangeText={(val) => setFormData({ ...formData, title: val })}
         />
         <CustomInput
-          value={formData.description}
+          value={formData.body}
           label="Description"
           placeholder="Enter product description"
-          onChangeText={(val) => setFormData({ ...formData, description: val })}
+          onChangeText={(val) => setFormData({ ...formData, body: val })}
           multiline
           numberOfLines={4}
           containerStyles="mt-3"
         />
-        <CustomInput
+        {/* <CustomInput
           value={
             formData.price.toString() === "NaN" ? "" : formData.price.toString()
           }
@@ -79,7 +75,7 @@ const AddProduct = () => {
           }
           keyboardType="numeric"
           containerStyles="mt-3"
-        />
+        /> */}
         <View className="h-[15%] ">
           <CustomButton
             title="Add Product"

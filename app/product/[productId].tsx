@@ -1,152 +1,92 @@
-import CustomButton from "@/components/CustomButton";
-import CustomInput from "@/components/CustomInput";
-import useProducts from "@/hooks/useProducts";
-import { Product } from "@/types";
-import Ioicons from "@expo/vector-icons/Ionicons";
-import { usePathname, useRouter } from "expo-router";
+import useAuth from "@/hooks/useAuth";
+import useProducts from "@/hooks/usePosts";
+import axios from "@/lib/axios.config";
+import { Post } from "@/types";
+import { router, usePathname } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { Appbar, Button, TextInput } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useToast } from "react-native-toast-notifications";
 
-const ProductView = () => {
+const Login = () => {
   const toast = useToast();
+  const { loggingIn, login } = useAuth();
+  const [comments, setComments] = useState([]);
   const pathname = usePathname();
-  const {
-    products,
-    updateProduct,
-    updatingProduct,
-    deleteProduct,
-    deletingProduct,
-  } = useProducts();
-  const router = useRouter();
-  const [product, setProduct] = useState<Product | null>(null);
+  const { products } = useProducts();
+
+  const [post, setPost] = useState<Post | null>(null);
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    price: 0,
+    title: "",
+    body: "",
+    email: "",
+    password: "",
   });
 
+  const getComments = async (id: number) => {
+    try {
+      const data: any = await axios.get(`/posts/${id}/comments`);
+      setComments(data.data)
+    } catch (error) {
+      console.log(error);
+    }
+  };
   useEffect(() => {
     if (pathname) {
       const id = pathname.split("/")[2];
-      console.log("===id", id);
-      products?.forEach((p: any) => {
-        console.log(p.id == id);
-      });
-      const product = products[0];
+      const product = products?.find((p: Post) => p.id.toString() === id);
       if (product) {
-        setProduct(product);
+        setPost(product);
         setFormData({
-          name: product.name,
-          description: product.description,
-          price: product.price,
+          ...formData,
+          title: product.title,
+          body: product.body,
         });
       }
-      // else {
-      //     setTimeout(() => {
-      //         router.push('/home');
-      //     }, 1000);
-      // }
+      getComments(parseInt(id));
     }
   }, [pathname]);
-
-  const handleSubmit = () => {
-    if (!formData.name || !formData.description || !formData.price) {
-      return toast.show("Please fill in all fields", {
-        type: "danger",
-      });
-    }
-    if (formData.price < 1) {
-      return toast.show("Price must be greater than 0", {
-        type: "danger",
-      });
-    }
-    // check if something changed
-    if (
-      formData.name === product?.name &&
-      formData.description === product?.description &&
-      formData.price === product?.price
-    ) {
-      return toast.show("No changes detected", {
-        type: "info",
-      });
-    }
-    updateProduct(
-      {
-        ...formData,
-        id: product?.id as string,
-      },
-      true
-    );
-  };
-
-  if (!product) return null;
   return (
-    <SafeAreaView className="bg-white h-full p-3">
-      <View className="flex-row justify-between">
-        <TouchableOpacity
-          onPress={() => router.push("/home")}
-          className="flex-row items-center h-fit"
-        >
-          <Ioicons name="arrow-back" size={24} />
-          <Text>Back to products</Text>
+    <SafeAreaView className="bg-white mb-5 h-full px-3 pt-3">
+      <View className="flex flex-row items-center  ">
+        <TouchableOpacity onPress={() => router.back()}>
+          <Appbar.Header>
+            <Appbar.BackAction onPress={() => {}} />
+          </Appbar.Header>
         </TouchableOpacity>
-        <CustomButton
-          isLoading={deletingProduct}
-          handlePress={() => deleteProduct(product.id, true)}
-          title="Delete"
-          variant="outline"
-          titleStyles="text-red-500"
-          containerStyles="border-red-500 w-32 py-1"
-        />
+        <Text className="text-lg font-bold mt-5">Comments</Text>
       </View>
-      <View className="mt-6">
-        <Text className="text-xl font-rubiksemibold text-gray-800">
-          Product Details
+
+      <View className="mb-12  mt-4 flex flex-col space-y-3">
+        <Text className="text-xl text-gray-800 font-rubiksemibold">
+          Post : {post?.title}
         </Text>
-        <View className="mb-5 mt-4">
-          <CustomInput
-            value={formData.name}
-            label="Product Name"
-            placeholder="Enter product name"
-            onChangeText={(val) => setFormData({ ...formData, name: val })}
-          />
-          <CustomInput
-            value={formData.description}
-            label="Description"
-            placeholder="Enter product description"
-            onChangeText={(val) =>
-              setFormData({ ...formData, description: val })
-            }
-            multiline
-            numberOfLines={4}
-            containerStyles="mt-3"
-          />
-          <CustomInput
-            value={
-              formData.price.toString() === "NaN"
-                ? ""
-                : formData.price.toString()
-            }
-            label="Price (in USD)"
-            placeholder="Enter product price"
-            onChangeText={(val) =>
-              setFormData({ ...formData, price: parseInt(val) })
-            }
-            keyboardType="numeric"
-            containerStyles="mt-3"
-          />
-        </View>
-        <CustomButton
-          isLoading={updatingProduct}
-          title="Update Product"
-          handlePress={handleSubmit}
-          containerStyles="mt-8"
+        <Text className="text-gray-500 text-base">Here are the comments</Text>
+
+        <FlatList
+          data={comments}
+          ListEmptyComponent={() => (
+            <View className="h-full justify-center items-center bg-gray-50 rounded-lg">
+              <Text className="text-lg text-gray-700 pt-3 ">
+                No comments yet for this post
+              </Text>
+            </View>
+          )}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View className="p-3  rounded-lg mb-3 border flex space-y-2 border-gray-200 shadow-sm">
+              <Text className="text-lg  font-semibold">{item?.name}</Text>
+              <Text className="text-lg text-gray-500 font-semibold">
+                {item?.email}
+              </Text>
+              <Text className="text-base text-gray-500 mb-3">{item?.body}</Text>
+            </View>
+          )}
         />
       </View>
     </SafeAreaView>
   );
 };
 
-export default ProductView;
+export default Login;

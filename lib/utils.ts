@@ -1,4 +1,4 @@
-import { Product } from "@/types";
+import { Post, Product } from "@/types";
 
 export const validateEmail = (email: string) => {
     const re = /\S+@\S+\.\S+/;
@@ -9,19 +9,16 @@ export const validatePassword = (password: string) => {
     return password.length >= 8;
 }
 
-export const validateProduct = (product: Omit<Product, "id">) => {
+export const validateProduct = (product: Omit<Post, "id">) => {
     return {
         name: {
-            valid: product.name.length > 0,
+            valid: product.title.length > 0,
             message: "Name is required"
         },
         description: {
-            valid: product.description.length > 0,
+            valid: product.body.length > 0,
             message: "Description is required"
         },
-        price: {
-            valid: product.price > 0,
-            message: "Price must be greater than 0"
-        }
+      
     }
 }

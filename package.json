@@ -15,7 +15,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@expo/vector-icons": "14.0.2",
+    "@  ": "14.0.2",
     "@faker-js/faker": "^8.4.1",
     "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-navigation/native": "^6.0.2",
@@ -42,6 +42,9 @@
     "react-native-screens": "3.31.1",
     "react-native-toast-notifications": "^3.4.0",
     "react-native-web": "~0.19.10",
+    "react-redux": "^9.1.2",
+    "redux": "^5.0.1",
+    "redux-thunk": "^3.1.0",
     "swr": "^2.2.5"
   },
   "devDependencies": {
