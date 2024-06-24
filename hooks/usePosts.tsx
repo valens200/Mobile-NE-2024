@@ -44,13 +44,14 @@ export default function useProducts() {
     setCreatingProduct(true);
     try {
       const { data } = await axios.post("/posts", product);
-      console.log(data)
+      console.log(data);
       if (data) {
         toast.show("Product created successfully", {
           type: "success",
         });
+        router.push("/home");
       } else {
-        toast.show("An error occurred", {
+        toast.show("Some thing went wrong", {
           type: "danger",
         });
       }

@@ -6,21 +6,28 @@ import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useToast } from "react-native-toast-notifications";
 import { validateProduct } from "@/lib/utils";
+import { router } from "expo-router";
 
 const AddProduct = () => {
   const toast = useToast();
   const { createProduct, creatingProduct } = useProducts();
 
   const [formData, setFormData] = useState({
-    id:0,
-    userId:0,
-    title:"",
-    body:"",
+    id: 0,
+    userId: 0,
+    title: "",
+    body: "",
   });
 
   const handleSubmit = () => {
     if (!formData.title || !formData.body) {
       return toast.show("Please fill in all fields", {
+        type: "danger",
+      });
+    }
+
+    if (typeof formData.title == "number") {
+      return toast.show("The title should not be a number ", {
         type: "danger",
       });
     }

@@ -6,9 +6,11 @@ import { Post, Product } from "@/types";
 import { da, faker } from "@faker-js/faker";
 import { useRouter } from "expo-router";
 import {
+  Alert,
   FlatList,
   Image,
   ImageBackground,
+  StatusBar,
   Text,
   TouchableOpacity,
   View,
@@ -37,8 +39,9 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [refreshing, setRefleshing] = useState(false);
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const toast = useToast();
+
+  const [posts, setPosts] = useState<any[]>([]);
 
   setTimeout(() => {
     setLoading(false);
@@ -46,8 +49,8 @@ export default function HomeScreen() {
   const router = useRouter();
 
   const search = () => {
-    if (products) {
-      return products?.filter((item) => {
+    if (posts) {
+      return posts?.filter((item) => {
         const values = Object.values(item);
         return values.some((value) => {
           return JSON.stringify(value)
@@ -57,32 +60,60 @@ export default function HomeScreen() {
       });
     }
   };
-
-  const handleDelete = async (id: number) => {
+  const getPosts = async () => {
     try {
-      // alert('Are you sure you want to delete this post?')
-      const res = await axios.delete(`/posts/${id}`);
-      toast.show("The post was deleted successfully", {
-        type: "danger",
-      });
+      const res: any = await axios.get("/posts");
+      setPosts(res.data);
     } catch (error) {
       console.log(error);
     }
   };
 
+  const handleDelete = async (id: number) => {
+    try {
+      Alert.alert("Delete post", "Are you sure you want to delete this post?", [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            toast.show("The post was deleted successfully", {
+              type: "success",
+            });
+            setRefleshing(true);
+            setTimeout(() => {
+              setRefleshing(false);
+            }, 100);
+            getPosts();
+            router.replace("/home");
+          },
+        },
+      ]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getPosts();
+  });
+
   return (
-    <SafeAreaView className="bg-white mb-5 h-full px-3 pt-3">
-      <View className="mb-6 mt-4 flex flex-col space-y-3">
+    <SafeAreaView className="bg-white mb-5 h-full px-0 pt-0">
+      <View className="mb-6 pt-4 px-2 pb-3 bg-[#161622] mt-0 flex flex-col space-y-3">
         <Searchbar
-          placeholder="Search a product here"
+          placeholder="Search a post here"
           onChangeText={(value) => setSearchQuery(value)}
           value={searchQuery}
         />
 
-        <Text className="text-xl text-gray-800 font-rubiksemibold">
+        <Text className="text-xl text-white font-rubiksemibold">
           Welcome Again, {user?.firstName}
         </Text>
-        <Text className="text-gray-500 text-base">
+        <Text className=" text-white text-base">
           Here are the products you have created
         </Text>
       </View>
@@ -97,10 +128,10 @@ export default function HomeScreen() {
         </View>
       ) : (
         <ScrollView>
-          <View>
+          <View className="W-[90%] mx-auto">
             <FlatList
               className="w-full"
-              data={products}
+              data={posts}
               horizontal={true}
               ListEmptyComponent={() => (
                 <View className="h-full justify-center mx-4 items-center bg-gray-50 rounded-lg">
@@ -192,6 +223,7 @@ export default function HomeScreen() {
           />
         </ScrollView>
       )}
+      <StatusBar backgroundColor="#161622" barStyle={"light-content"} />
     </SafeAreaView>
   );
 }
