@@ -28,6 +28,9 @@ const Login = () => {
     password: "",
   });
 
+  /**
+   * Getting as single post using the post id
+   */
   const getPost = (id: number) => {
     try {
       const post = axios.get(`/posts/${id}`);
@@ -36,6 +39,11 @@ const Login = () => {
       console.log(error);
     }
   };
+
+  /**
+   * Getting all comments from the database
+   * @param comments[]
+   */
   const getComments = async (id: number) => {
     try {
       const data: any = await axios.get(`/posts/${id}/comments`);
@@ -44,6 +52,10 @@ const Login = () => {
       console.log(error);
     }
   };
+
+  /**
+   * Using useEffect hook to get the id from parameter and retrive the corresponding post as well as its commments
+   */
   useEffect(() => {
     if (pathname) {
       const id = pathname.split("/")[2];
@@ -90,16 +102,16 @@ const Login = () => {
             <View className=" flex flex-row items-center justify-between px-4 ">
               <View className="flex flex-row items-center space-x-2">
                 <TouchableOpacity>
-                  <AntDesign name="like1" size={30} color="black" />
+                  <AntDesign name="like1" size={30} color="#f7941d" />
                 </TouchableOpacity>
                 <TouchableOpacity>
-                  <Entypo name="star" size={30} color="black" />
+                  <Entypo name="star" size={30} color="#f7941d" />
                 </TouchableOpacity>
               </View>
               <Card.Actions>
-                <Button>Delete</Button>
-                <Button>Update</Button>
+                <Button>View</Button>
               </Card.Actions>
+              
             </View>
           </Card>
           <Text className="text-gray-500 text-base">Here are the comments</Text>
@@ -119,7 +131,7 @@ const Login = () => {
                       animating={true}
                       color={MD2Colors.red800}
                     />
-                    <Text>Loading products</Text>
+                    <Text>Loading Comments</Text>
                   </View>
                 )}
               </View>

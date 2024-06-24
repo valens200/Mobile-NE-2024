@@ -19,6 +19,10 @@ const AddProduct = () => {
     body: "",
   });
 
+  /**
+   * Submissions handling functions
+   * @returns null
+   */
   const handleSubmit = () => {
     if (!formData.title || !formData.body) {
       return toast.show("Please fill in all fields", {
